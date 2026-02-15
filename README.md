@@ -1,36 +1,66 @@
-# farmcoolcow/fdupes
+# ghcr.io/coolcow/fdupes
 
-[![](https://img.shields.io/badge/  FROM  -farmcoolcow/entrypoints-lightgray.svg)](https://hub.docker.com/farmcoolcow/entrypoints) [![](https://images.microbadger.com/badges/commit/farmcoolcow/fdupes.svg)](https://github.com/coolcow/docker_fdupes/commits/master) [![](https://images.microbadger.com/badges/image/farmcoolcow/fdupes.svg)](https://microbadger.com/images/farmcoolcow/fdupes) [![](https://images.microbadger.com/badges/license/farmcoolcow/fdupes.svg)](https://raw.githubusercontent.com/coolcow/docker_fdupes/master/LICENSE.txt)
-
----
-
-## What is fdupes ?
-
-FDUPES is a program for identifying or deleting duplicate files residing within specified directories.. More informations on [the official fdupes github](https://github.com/adrianlopezroche/fdupes).
+Simple and minimal Alpine-based Docker image for [fdupes](https://github.com/adrianlopezroche/fdupes).
 
 ---
 
-## How to use this image
+## Overview
 
-This image is based on [farmcoolcow/entrypoints](https://hub.docker.com/r/farmcoolcow/entrypoints/).
-
-The default **ENTRYPOINT** is ```/entrypoint-su-exec.sh fdupes``` and the default **CMD** is ```--help```.  
-
-Take a look at [the fdupes README](http://www.harding.motd.ca/fdupes/README) to see all the available parameters.
+fdupes is a command-line program for identifying or deleting duplicate files in specified directories.
 
 ---
 
-### Example
+## Features
 
-* Docker-command: 
+- Based on Alpine Linux for a small footprint
+- Runs as non-root by default (user: `fdupes`)
+- Secure execution via [docker-entrypoints](https://github.com/coolcow/docker-entrypoints)
+- Configurable user/group IDs to avoid permission issues on mounted volumes
 
-  ```sh
-  docker run -it --rm \
-    -e PUID=$(id -u $(whoami)) \
-    -e PGID=$(id -g $(whoami)) \
-    -v <PATH_TO_YOUR_DATA>:/data farmcoolcow/fdupes \
-      -r /data
-  ```
+---
 
-  > Replace ```<PATH_TO_YOUR_DATA>``` with the directory-path of your data.
+## Usage
+
+### Quick Start
+
+```sh
+docker run --rm ghcr.io/coolcow/fdupes
+```
+
+Default runtime behavior:
+
+- **ENTRYPOINT:** `/entrypoint_su-exec.sh fdupes`
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---:|---|
+| `PUID` | 1000 | User ID to run fdupes as |
+| `PGID` | 1000 | Group ID to run fdupes as |
+| `ENTRYPOINT_USER` | fdupes | Internal: user for entrypoint script |
+| `ENTRYPOINT_GROUP` | fdupes | Internal: group for entrypoint script |
+| `ENTRYPOINT_HOME` | /data | Internal: working directory |
+
+Use `PUID` and `PGID` to run fdupes with your host user's uid/gid and avoid permission issues.
+
+### Find Duplicates Recursively
+
+```sh
+docker run -it --rm \
+  -e PUID=$(id -u) \
+  -e PGID=$(id -g) \
+  -v <PATH_TO_YOUR_DATA>:/data \
+  ghcr.io/coolcow/fdupes \
+    -r /data
+```
+
+Replace `<PATH_TO_YOUR_DATA>` with your data directory.
+
+---
+
+## References
+
+- [fdupes on GitHub](https://github.com/adrianlopezroche/fdupes)
+- [fdupes README](http://www.harding.motd.ca/fdupes/README)
+- [docker-entrypoints](https://github.com/coolcow/docker-entrypoints)
 
