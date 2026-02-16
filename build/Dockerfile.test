@@ -1,0 +1,16 @@
+# This Dockerfile is for running smoke tests on the fdupes application image.
+
+# The application image to test is passed as a build argument.
+# The default value is for local testing.
+ARG APP_IMAGE=ghcr.io/coolcow/fdupes:latest
+FROM ${APP_IMAGE}
+
+# Run smoke tests directly inside the application image.
+# If any command fails, the build will fail, indicating a problem.
+RUN \
+    test -x /usr/local/bin/fdupes && \
+    test -x /usr/local/bin/entrypoint_su-exec.sh && \
+    test -x /usr/local/bin/create_user_group_home.sh && \
+    echo "Checking fdupes version..." && \
+    fdupes --version && \
+    grep -q 'su-exec' /usr/local/bin/entrypoint_su-exec.sh

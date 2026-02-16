@@ -13,7 +13,10 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: coolcow/workflows/.github/workflows/build-and-publish.yml@v1.0.0
+    uses: coolcow/workflows/.github/workflows/build-and-publish.yml@v1.1.2
     with:
       image_name: 'fdupes'
+      build_context: 'build'
+      dockerfile_path: 'build/Dockerfile'
+      test_dockerfile_path: 'build/Dockerfile.test'
     secrets: inherit
