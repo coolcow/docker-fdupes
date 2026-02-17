@@ -1,5 +1,5 @@
 # Global build arguments
-ARG ENTRYPOINTS_VERSION=2.0.0
+ARG ENTRYPOINTS_VERSION=2.2.0
 ARG ALPINE_VERSION=3.23.3
 ARG FDUPES_VERSION=v2.4.0
 
@@ -11,10 +11,14 @@ FROM alpine:${ALPINE_VERSION}
 
 ARG FDUPES_VERSION
 
-# Runtime environment variables
-ENV ENTRYPOINT_USER=fdupes \
-    ENTRYPOINT_GROUP=fdupes \
-    ENTRYPOINT_HOME=/data
+# Runtime environment variables needed by the entrypoint scripts.
+ENV FDUPES_UID=1000 \
+  FDUPES_GID=1000 \
+  FDUPES_REMAP_IDS=1 \
+  FDUPES_USER=fdupes \
+  FDUPES_GROUP=fdupes \
+  FDUPES_HOME=/home/fdupes \
+  FDUPES_SHELL=/bin/sh
 
 # install fdupes and required dependencies
 RUN apk --no-cache --update add \
@@ -43,15 +47,16 @@ RUN apk --no-cache --update add \
     && apk --no-cache del .build-deps
 
 # Copy required scripts from the entrypoints asset image
-COPY --from=entrypoints /assets/create_user_group_home.sh /usr/local/bin/
+COPY --from=entrypoints /assets/ensure_user_group_home.sh /usr/local/bin/
 COPY --from=entrypoints /assets/entrypoint_su-exec.sh /usr/local/bin/
+COPY entrypoint.sh /usr/local/bin/
 
 # Make scripts executable
 RUN chmod +x /usr/local/bin/*.sh
 
-WORKDIR $ENTRYPOINT_HOME
+WORKDIR $FDUPES_HOME
 
-ENTRYPOINT ["/usr/local/bin/entrypoint_su-exec.sh", "fdupes"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["--help"]
 
 ARG LABEL_VERSION="latest"
@@ -75,4 +80,4 @@ LABEL org.opencontainers.image.title=$LABEL_IMAGE_NAME \
       org.opencontainers.image.source=$LABEL_VCS_URL \
       org.opencontainers.image.url=$LABEL_URL
 
-VOLUME $ENTRYPOINT_HOME
+VOLUME $FDUPES_HOME

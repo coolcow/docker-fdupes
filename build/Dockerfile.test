@@ -2,7 +2,7 @@
 
 # The application image to test is passed as a build argument.
 # The default value is for local testing.
-ARG APP_IMAGE=ghcr.io/coolcow/fdupes:latest
+ARG APP_IMAGE=ghcr.io/coolcow/fdupes:local-test-build
 FROM ${APP_IMAGE}
 
 # Run smoke tests directly inside the application image.
@@ -10,7 +10,7 @@ FROM ${APP_IMAGE}
 RUN \
     test -x /usr/local/bin/fdupes && \
     test -x /usr/local/bin/entrypoint_su-exec.sh && \
-    test -x /usr/local/bin/create_user_group_home.sh && \
+    test -x /usr/local/bin/ensure_user_group_home.sh && \
     echo "Checking fdupes version..." && \
     fdupes --version && \
     grep -q 'su-exec' /usr/local/bin/entrypoint_su-exec.sh

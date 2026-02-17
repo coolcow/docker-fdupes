@@ -18,8 +18,9 @@ docker run --rm ghcr.io/coolcow/fdupes --help
 
 ```sh
 docker run -it --rm \
-  -e PUID=$(id -u) \
-  -e PGID=$(id -g) \
+  -e FDUPES_UID=$(id -u) \
+  -e FDUPES_GID=$(id -g) \
+  -v /path/to/fdupes-home:/home/fdupes \
   -v /path/to/data:/data \
   ghcr.io/coolcow/fdupes \
   -r /data
@@ -27,13 +28,17 @@ docker run -it --rm \
 
 ### Runtime Environment Variables
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `PUID` | `1000` | User ID to run the process as. |
-| `PGID` | `1000` | Group ID to run the process as. |
-| `ENTRYPOINT_USER` | `fdupes` | Internal user used by entrypoint scripts. |
-| `ENTRYPOINT_GROUP` | `fdupes` | Internal group used by entrypoint scripts. |
-| `ENTRYPOINT_HOME` | `/data` | Working directory in the container. |
+| Variable | Default | Target | Description |
+| --- | --- | --- | --- |
+| `FDUPES_UID` | `1000` | `TARGET_UID` | User ID to run `fdupes` as. |
+| `FDUPES_GID` | `1000` | `TARGET_GID` | Group ID to run `fdupes` as. |
+| `FDUPES_REMAP_IDS` | `1` | `TARGET_REMAP_IDS` | Set `0` to disable remapping conflicting UID/GID entries. |
+| `FDUPES_USER` | `fdupes` | `TARGET_USER` | Runtime user name inside the container. |
+| `FDUPES_GROUP` | `fdupes` | `TARGET_GROUP` | Runtime group name inside the container. |
+| `FDUPES_HOME` | `/home/fdupes` | `TARGET_HOME` | Home directory used by `fdupes` and as default workdir. |
+| `FDUPES_SHELL` | `/bin/sh` | `TARGET_SHELL` | Login shell for the runtime user. |
+
+`Target` shows the corresponding variable used by `coolcow/entrypoints`.
 
 ---
 
@@ -46,8 +51,22 @@ Customize the image at build time with `docker build --build-arg <KEY>=<VALUE>`.
 | Argument | Default | Description |
 | --- | --- | --- |
 | `ALPINE_VERSION` | `3.23.3` | Version of the Alpine base image. |
-| `ENTRYPOINTS_VERSION` | `2.0.0` | Version of the `coolcow/entrypoints` image used for scripts. |
-| `FDUPES_VERSION` | `v2.3.2` | Git tag/branch of `adrianlopezroche/fdupes` to build. |
+| `ENTRYPOINTS_VERSION` | `2.2.0` | Version of the `coolcow/entrypoints` image used for scripts. |
+| `FDUPES_VERSION` | `v2.4.0` | Git tag/branch of `adrianlopezroche/fdupes` to build. |
+
+---
+
+## Migration Notes
+
+Runtime user/group environment variables were renamed to image-specific `FDUPES_*` names.
+
+- `PUID` → `FDUPES_UID`
+- `PGID` → `FDUPES_GID`
+- `ENTRYPOINT_USER` → `FDUPES_USER`
+- `ENTRYPOINT_GROUP` → `FDUPES_GROUP`
+- `ENTRYPOINT_HOME` → `FDUPES_HOME`
+
+Update your `docker run` / `docker-compose` environment configuration accordingly when upgrading from older tags.
 
 ---
 
